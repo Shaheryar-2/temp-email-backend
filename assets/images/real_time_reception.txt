@@ -1,0 +1,16 @@
+sequenceDiagram
+    participant S as External Sender
+    participant M as SMTP Server
+    participant P as Parser
+    participant D as Database
+    participant W as WebSocket
+    participant F as Frontend
+    
+    S->>M: Send email to temp123@domain.com
+    M->>P: Parse email content
+    P->>D: Validate recipient domain
+    D-->>P: Confirm email exists
+    P->>D: Save Message with attachments
+    D->>W: Broadcast new message event
+    W->>F: Send real-time notification
+    F->>F: Update inbox instantly

@@ -1,0 +1,9 @@
+sequenceDiagram
+    participant F as Frontend
+    participant A as API Server
+    participant D as Database
+    F->>A: POST /api/emails
+    A->>D: Generate unique email (prefix@random-domain.com)
+    D-->>A: Save new Email document
+    A-->>F: Return {email, expiresAt, domain}
+    F->>F: Display new email to user
