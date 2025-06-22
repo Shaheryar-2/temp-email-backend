@@ -15,7 +15,7 @@ async function sendTest() {
   try {
     const info = await transporter.sendMail({
       from: '"Test Sender" <test@example.com>',
-      to: 'f0966d0e@disposable.me',
+      to: 'dca40e38@tempmail.app', // ✅ your target email
       subject: 'Integration Test',
       text: 'This is a test email',
     });

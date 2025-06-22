@@ -61,7 +61,7 @@ For Manual:
     ./test-all.sh
 
 # Database Check:
-docker exec -it temp-email-app_mongodb_1 mongosh
+docker exec -it backend_mongodb_1 mongosh
 use disposable-email
 > db.emails.find().pretty()
 > db.emails.find()
