@@ -1,58 +1,27 @@
-const WebSocket = require('ws')
+const WebSocket = require('ws');
 
-const clients = new Map()
-
-let wss
-
-const startWebSocketServer = (httpServer) => {
-  wss = new WebSocket.Server({ server: httpServer })
+module.exports = { startWebSocketServer: (server) => {
+  const wss = new WebSocket.Server({ server });
   
-  wss.on('connection', (ws) => {
-    console.log('New WebSocket client connected')
+  wss.on('connection', (ws, req) => {
+    // Extract email from query parameters
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const email = url.searchParams.get('email');
+    
+    // Store email on the WebSocket connection
+    ws.email = email;
+    
+    console.log(`New WebSocket connection for: ${email}`);
     
     ws.on('message', (message) => {
-      try {
-        const data = JSON.parse(message)
-        if (data.type === 'subscribe' && data.email) {
-          if (!clients.has(data.email)) {
-            clients.set(data.email, new Set())
-          }
-          clients.get(data.email).add(ws)
-          console.log(`Client subscribed to ${data.email}`)
-        }
-      } catch (error) {
-        console.error('Error processing WebSocket message:', error)
-      }
-    })
-
+      console.log(`Received message from ${email}: ${message}`);
+    });
+    
     ws.on('close', () => {
-      for (const [email, sockets] of clients.entries()) {
-        if (sockets.has(ws)) {
-          sockets.delete(ws)
-          if (sockets.size === 0) {
-            clients.delete(email)
-          }
-        }
-      }
-      console.log('WebSocket client disconnected')
-    })
-  })
-}
-
-const broadcastNewMessage = (emailAddress, message) => {
-  if (clients.has(emailAddress)) {
-    clients.get(emailAddress).forEach(client => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify({
-          type: 'new-message',
-          data: message
-        }))
-      }
-    })
-  }
-}
-
-module.exports = { 
-  startWebSocketServer,
-  broadcastNewMessage
-}
+      console.log(`Connection closed for: ${email}`);
+    });
+  });
+  
+  console.log('WebSocket server started');
+  return wss; // Return WebSocket server instance
+}};

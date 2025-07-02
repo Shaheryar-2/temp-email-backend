@@ -22,8 +22,8 @@ app.use('/api/emails', emailRoutes);
 app.use('/api/messages', messageRoutes);
 
 // Start servers
-const server = app.listen(PORT || 3000, () => {
+const server = app.listen(PORT, () => {
   console.log(`HTTP server running on port ${PORT}`);
-  startSMTPServer();
-  startWebSocketServer(server);
+  const wss = startWebSocketServer(server);
+  startSMTPServer(wss);
 });
