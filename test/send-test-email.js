@@ -14,8 +14,8 @@ async function sendTest() {
 
   try {
     const info = await transporter.sendMail({
-      from: 'Test Sender',
-      to: '2e38eaaf@quickinbox.net',
+      from: '"Test Sender" <testsender@example.com>',
+      to: '4440539d@quickinbox.net',
       subject: 'Integration Test',
       text: 'This is a test email',
     });

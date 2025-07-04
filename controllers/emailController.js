@@ -56,7 +56,7 @@ exports.getEmailMessages = async (req, res) => {
 /**
  * Save an incoming SMTP message (called from SMTP server)
  */
-exports.saveIncomingMessage = async (recipientEmail, parsed) => {
+exports.saveIncomingMessage = async (recipientEmail, parsed, senderAddress, senderName) => {
   console.log('coming', recipientEmail, parsed)
   const email = await Email.findOne({ address: recipientEmail });
 
@@ -65,9 +65,13 @@ exports.saveIncomingMessage = async (recipientEmail, parsed) => {
     return null;
   }
 
+  const from = senderName ? 
+    `${senderName} <${senderAddress}>` : 
+    senderAddress;
+
   const newMessage = new Message({
     emailId: email._id,
-    from: parsed.from?.text || '(unknown)',
+    from: from || '(unknown)',
     subject: parsed.subject || '(no subject)',
     body: parsed.text || '',
     html: parsed.html || '',

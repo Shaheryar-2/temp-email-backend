@@ -25,9 +25,15 @@ const startSMTPServer = (wss) => {
             console.log(`Rejected email for unknown domain: ${domain}`);
             return callback();
           }
+          const sender = parsed.from?.value?.[0]?.address || 
+                         session.envelope.mailFrom?.address || 
+                         'unknown@example.com';
+          const senderName = parsed.from?.value?.[0]?.name || 
+                             parsed.from?.text || 
+                             'Unknown Sender';
 
-          const message = await saveIncomingMessage(emailAddress, parsed);
-          
+          const message = await saveIncomingMessage(emailAddress, parsed, sender, senderName)
+
           if (message) {
             console.log(`Message received for ${emailAddress}`);
             
