@@ -1,7 +1,9 @@
 1. UI fixing (Inbox, Inbox container).
 2. Attachment Viewer fix.
 3. Add unread, read functionality in msg.
+4. AD friendly bnana ha temp mail dekh ky
 4. Articles page banana ha.
 5. Name finalize kr ky usko env me dalna ha.
 but we have to deploy here
-6. Email forwarding feature (main feature)
+6. QR code imply knnra
+7. Email forwarding feature (main feature)
