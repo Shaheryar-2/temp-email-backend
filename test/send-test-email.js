@@ -1,5 +1,5 @@
-// test/send-test-email.js
 const nodemailer = require('nodemailer');
+const path = require('path');
 
 async function sendTest() {
   const transporter = nodemailer.createTransport({
@@ -12,16 +12,38 @@ async function sendTest() {
     connectionTimeout: 5000
   });
 
+  // Use your specific PDF file path
+  const pdfPath = 'assets/images/real_time_reception.png';
+
   try {
     const info = await transporter.sendMail({
       from: '"Test Sender" <testsender@example.com>',
-      to: '4440539d@quickinbox.net',
-      subject: 'Integration Test',
-      text: 'This is a test email',
+      to: 'c789dd0c@quickinbox.net',
+      subject: 'Test Email with PDF Attachment',
+      text: 'Please find the attached PDF file.',
+      // html: `
+        
+      //   <p>This email was sent for testing purposes.</p>
+      // `,
+      attachments: [
+        {
+          filename: 'sample.pdf', // You can rename it here if needed
+          path: pdfPath,
+          contentType: 'application/pdf'
+        }
+      ]
     });
-    console.log('Email sent:', info.messageId);
+    
+    console.log('Email sent successfully:', info.messageId);
+    console.log('Attachment included:', pdfPath);
   } catch (error) {
     console.error('Failed to send email:', error);
+    
+    // Check if file exists
+    const fs = require('fs');
+    if (!fs.existsSync(pdfPath)) {
+      console.error('Attachment file not found at:', pdfPath);
+    }
   }
 }
 
