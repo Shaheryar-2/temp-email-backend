@@ -2,22 +2,28 @@ const Message = require('../models/Message')
 
 exports.getMessage = async (req, res) => {
   try {
-    const message = await Message.findById(req.params.id)
+    const message = await Message.findById(req.params.id);
     if (!message) {
-      return res.status(404).json({ error: 'Message not found' })
+      return res.status(404).json({ error: 'Message not found' });
     }
 
-    const response = message.toObject()
+    // Mark as read when fetched for details
+    if (!message.read) {
+      message.read = true;
+      await message.save();
+    }
+
+    const response = message.toObject();
     response.attachments = response.attachments.map(a => ({
       filename: a.filename,
       contentType: a.contentType,
       size: a.size
-    }))
+    }));
 
-    res.json(response)
+    res.json(response);
   } catch (error) {
-    console.error('Error fetching message:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    console.error('Error fetching message:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 }
 

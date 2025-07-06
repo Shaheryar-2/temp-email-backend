@@ -18,8 +18,8 @@ async function sendTest() {
   try {
     const info = await transporter.sendMail({
       from: '"Test Sender" <testsender@example.com>',
-      to: 'c789dd0c@quickinbox.net',
-      subject: 'Test Email with PDF Attachment',
+      to: '78329a26@quickinbox.net',
+      subject: 'SHHABAZ KI EMAIL',
       text: 'Please find the attached PDF file.',
       // html: `
         
