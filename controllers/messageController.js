@@ -30,16 +30,19 @@ exports.getMessage = async (req, res) => {
 exports.getAttachment = async (req, res) => {
   try {
     const message = await Message.findById(req.params.id)
-    if (!message || !message.attachments[req.params.index]) {
+    if (!message) return res.status(404).json({ error: 'Message not found' })
+
+    const idx = parseInt(req.params.index, 10)
+    if (isNaN(idx) || idx < 0 || idx >= message.attachments.length) {
       return res.status(404).json({ error: 'Attachment not found' })
     }
 
-    const attachment = message.attachments[req.params.index]
-    res.set('Content-Type', attachment.contentType)
-    res.set('Content-Disposition', `attachment filename="${attachment.filename}"`)
+    const attachment = message.attachments[idx]
+    res.setHeader('Content-Type', attachment.contentType)
+    res.setHeader('Content-Disposition', `attachment; filename="${attachment.filename}"`)
     res.send(attachment.content)
-  } catch (error) {
-    console.error('Error fetching attachment:', error)
+  } catch (err) {
+    console.error('Error fetching attachment:', err)
     res.status(500).json({ error: 'Internal server error' })
   }
 }
