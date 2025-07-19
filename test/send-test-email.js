@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const path = require('path');
+const fs = require('fs');
 
 async function sendTest() {
   const transporter = nodemailer.createTransport({
@@ -7,42 +8,54 @@ async function sendTest() {
     port: 2525,
     secure: false,
     tls: {
-      rejectUnauthorized: false // disable cert verification
+      rejectUnauthorized: false
     },
     connectionTimeout: 5000
   });
 
-  // Use your specific PDF file path
-  const pdfPath = 'assets/images/real_time_reception.png';
-
+  // Get absolute path to the PDF file
+  const pdfPath = path.resolve(__dirname, '../assets/images/sample_pdf.pdf');
+  
   try {
+    // Check if file exists
+    if (!fs.existsSync(pdfPath)) {
+      throw new Error(`PDF file not found at: ${pdfPath}`);
+    }
+
     const info = await transporter.sendMail({
       from: '"Test Sender" <testsender@example.com>',
-      to: '78329a26@quickinbox.net',
-      subject: 'SHHABAZ KI EMAIL',
-      text: 'Please find the attached PDF file.',
-      // html: `
-        
-      //   <p>This email was sent for testing purposes.</p>
-      // `,
+      to: 'd21f5ad4@tempmail.app',
+      subject: 'TEST EMAIL WITH ATTACHMENT',
+      text: 'This is a test email with attachment',
+      html: '<p>This is a <b>test email</b> with attachment</p>',
       attachments: [
+        // {
+        //   filename: 'sample_pdf.pdf',
+        //   path: pdfPath,
+        //   contentType: 'application/pdf'
+        // }
         {
-          filename: 'sample.pdf', // You can rename it here if needed
+          filename: 'text1.txt',
+          content: 'Hello Shahbaz'
+        },
+         {
+          filename: "buffer.txt",
+          content: Buffer.from("Hello world!", "utf8"),
+        },
+        {
+          filename: "report.pdf",
           path: pdfPath,
-          contentType: 'application/pdf'
-        }
+        },
       ]
     });
     
     console.log('Email sent successfully:', info.messageId);
-    console.log('Attachment included:', pdfPath);
+    console.log('Attachment sent:', pdfPath);
   } catch (error) {
     console.error('Failed to send email:', error);
     
-    // Check if file exists
-    const fs = require('fs');
-    if (!fs.existsSync(pdfPath)) {
-      console.error('Attachment file not found at:', pdfPath);
+    if (error.code === 'ENOENT') {
+      console.error(`File not found: ${pdfPath}`);
     }
   }
 }
