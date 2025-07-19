@@ -6,6 +6,7 @@ const emailRoutes = require('./routes/emailRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const { startSMTPServer } = require('./services/smtpServer');
 const { startWebSocketServer } = require('./services/webSocketServer');
+import compression from 'compression'
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,6 +21,7 @@ connectDB();
 // Routes
 app.use('/api/emails', emailRoutes);
 app.use('/api/messages', messageRoutes);
+app.use(compression());
 
 // Start servers
 const server = app.listen(PORT, () => {
