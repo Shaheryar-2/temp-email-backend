@@ -22,6 +22,7 @@ exports.createEmail = async (req, res) => {
     await newEmail.save();
 
     res.status(201).json({
+      id: newEmail._id,
       email: emailAddress,
       domain: randomDomain,
       expiresAt: new Date(newEmail.createdAt.getTime() + 24 * 60 * 60 * 1000)
@@ -86,3 +87,17 @@ exports.saveIncomingMessage = async (recipientEmail, parsed, senderAddress, send
 
   return await newMessage.save();
 }
+
+exports.deleteEmail = async (req, res) => {
+  try {
+    const email = await Email.findByIdAndDelete(req.params.id);
+    if (!email) {
+      return res.status(404).json({ error: 'Email not found' });
+    }
+
+    res.json({ message: 'Email deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting email:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
