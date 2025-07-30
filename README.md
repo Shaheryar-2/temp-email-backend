@@ -16,7 +16,7 @@ git clone https://github.com/YOUR_USERNAME/temp-email-app.git
 cd temp-email-app
 2. Run with Docker
 # Requires Docker and Docker Compose installed.
-docker-compose up --build
+docker-compose up --build (in backend directory)
 # 🛠 Manual Setup (Without Docker)
 Use this if you're developing/debugging services independently.
 
