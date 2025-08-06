@@ -71,3 +71,10 @@ use disposable-email
 - chmod +x test-all.sh
 - ./test-all.sh
 
+
+docker issues
+# 1. to delete volumes
+# docker-compose down --remove-orphans --volumes
+# 2. docker system prune --all --volumes
+# 3. docker-compose up
+

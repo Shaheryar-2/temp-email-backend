@@ -5,3 +5,11 @@
 but we have to deploy here
 6. QR code imply knnra
 7. Email forwarding feature (main feature)
+
+
+https://chat.deepseek.com/a/chat/s/9f14a57c-201e-45d4-b1d6-f5672c239851
+1. docker aik krna ha dono servers krna
+2. domains buy for website and emails (tempemailbox.org from hostinger, ) [karad.life from hostinger RS600/year, ioasd.xyz from namecheap ]
+3. deployment lgani ha 
+
+server deployment
