@@ -3,7 +3,7 @@ const Email = require('../models/Email');
 const Message = require('../models/Message');
 
 // Your available domains
-const DOMAINS = ['tempmail.app', 'disposable.me', 'quickinbox.net'];
+const DOMAINS = ['karad.life', 'ioasd.xyz'];
 
 /**
  * Generate a new disposable email
