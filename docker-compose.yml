@@ -12,7 +12,7 @@ services:
     command: npm run dev
     ports:
       - "5000:5000"   # API
-      - "2525:2525"   # SMTP
+      - "465:465"   # SMTP
       - "8080:8080"   # WebSocket
     environment:
       - MONGODB_URI=mongodb://mongodb:27017/disposable-email

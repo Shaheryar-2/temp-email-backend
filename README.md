@@ -78,3 +78,23 @@ docker issues
 # 2. docker system prune --all --volumes
 # 3. docker-compose up
 
+
+to login to vps commands locally:
+ssh root@31.97.143.240
+root password
+
+
+if want to login on vps hostinger;
+username: root
+password: Miraz.457@..
+
+
+-> Generate Private Key and Self-Signed Certificate
+# Generate private key (4096-bit RSA)
+openssl genrsa -out private.key 4096
+# Create Certificate Signing Request (CSR)
+openssl req -new -key private.key -out csr.pem -subj "/CN=mail.tempmailbox.org"
+# Generate self-signed certificate (valid 365 days)
+openssl x509 -req -days 365 -in csr.pem -signkey private.key -out certificate.crt
+# Clean up CSR
+rm csr.pem
