@@ -9,7 +9,7 @@ const EmailSchema = new mongoose.Schema({
   domain: {
     type: String,
     required: true,
-    enum: ['tempmail.app', 'disposable.me', 'quickinbox.net'] // Add your domains
+    enum: ['ioasd.xyz', 'karad.life'] // Add your domains
   },
   createdAt: { 
     type: Date, 
