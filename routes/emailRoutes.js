@@ -3,9 +3,11 @@ const router = express.Router()
 const {
   createEmail,
   getEmailMessages,
-  deleteEmail
+  deleteEmail,
+  getAllEmails
 } = require('../controllers/emailController')
 
+router.get('/', getAllEmails)
 router.post('/', createEmail)
 router.get('/:email/messages', getEmailMessages)
 router.delete('/:id', deleteEmail);

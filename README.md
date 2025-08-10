@@ -98,3 +98,6 @@ openssl req -new -key private.key -out csr.pem -subj "/CN=mail.tempmailbox.org"
 openssl x509 -req -days 365 -in csr.pem -signkey private.key -out certificate.crt
 # Clean up CSR
 rm csr.pem
+
+
+Already saved PTR record name: srv949994.hstgr.cloud

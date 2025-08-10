@@ -7,7 +7,8 @@ but we have to deploy here
 7. Email forwarding feature (main feature)
 
 
-https://chat.deepseek.com/a/chat/s/9f14a57c-201e-45d4-b1d6-f5672c239851
+1. https://chat.deepseek.com/a/chat/s/9f14a57c-201e-45d4-b1d6-f5672c239851
+2. https://chat.deepseek.com/a/chat/s/0a765215-4daa-42b4-a6b8-98d953b64931
 add searach bar icon for website also
 1. docker aik krna ha dono servers krna (done)
 2. domains buy for website and emails (tempemailbox.org from spaceship, ) [karad.life from hostinger RS600/year, ioasd.xyz from namecheap ] // all are on spaceship (done)

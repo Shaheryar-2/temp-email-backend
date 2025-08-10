@@ -101,3 +101,13 @@ exports.deleteEmail = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+exports.getAllEmails = async (req, res) => {
+  try {
+    const emails = await Email.find().sort({ createdAt: -1 });
+    res.json(emails);
+  } catch (error) {
+    console.error('Error fetching emails:', error);
+    res.status(500).json({ error: 'Server error while fetching emails' });
+  }
+};
