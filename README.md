@@ -101,3 +101,64 @@ rm csr.pem
 
 
 Already saved PTR record name: srv949994.hstgr.cloud
+
+
+# Create renewal script
+sudo nano /etc/cron.weekly/certbot-renew
+#!/bin/bash
+certbot renew --quiet --post-hook "docker-compose -f /root/TempEmailApp/docker-compose.yml restart backend"
+ then ->  Make executable:
+bash
+sudo chmod +x /etc/cron.weekly/certbot-renew
+
+
+Nginx file:
+sudo nano /etc/nginx/sites-available/tempmailbox.org
+
+
+
+For certificates on VPS server:
+root@srv949994:~/TempEmailApp# sudo systemctl stop nginx
+root@srv949994:~/TempEmailApp# sudo ss -ltnp | grep ':80' || true
+LISTEN 0      4096         0.0.0.0:8080       0.0.0.0:*    users:(("docker-proxy",pid=19115,fd=4))  
+LISTEN 0      4096            [::]:8080          [::]:*    users:(("docker-proxy",pid=19121,fd=4))  
+root@srv949994:~/TempEmailApp# sudo certbot certonly --standalone \
+  -d tempmailbox.org -d www.tempmailbox.org \
+  -m sharymirza457@gmail.com --agree-tos --no-eff-email
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+Requesting a certificate for tempmailbox.org and www.tempmailbox.org
+
+Successfully received certificate.
+Certificate is saved at: /etc/letsencrypt/live/tempmailbox.org/fullchain.pem
+Key is saved at:         /etc/letsencrypt/live/tempmailbox.org/privkey.pem
+This certificate expires on 2025-11-08.
+These files will be updated when the certificate renews.
+Certbot has set up a scheduled task to automatically renew this certificate in the background.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+If you like Certbot, please consider supporting our work by:
+ * Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate
+ * Donating to EFF:                    https://eff.org/donate-le
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+root@srv949994:~/TempEmailApp# sudo systemctl start nginx
+root@srv949994:~/TempEmailApp# sudo certbot certificates
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Found the following certs:
+  Certificate Name: mail.tempmailbox.org
+    Serial Number: 6274993d1c4b3a3c362452605b1f3ef96a9
+    Key Type: RSA
+    Domains: mail.tempmailbox.org
+    Expiry Date: 2025-11-08 08:11:38+00:00 (VALID: 89 days)
+    Certificate Path: /etc/letsencrypt/live/mail.tempmailbox.org/fullchain.pem
+    Private Key Path: /etc/letsencrypt/live/mail.tempmailbox.org/privkey.pem
+  Certificate Name: tempmailbox.org
+    Serial Number: 69c3f5e8ea06a15a8ddbbf3d0fe7843f9d8
+    Key Type: RSA
+    Domains: tempmailbox.org www.tempmailbox.org
+    Expiry Date: 2025-11-08 15:30:49+00:00 (VALID: 89 days)
+    Certificate Path: /etc/letsencrypt/live/tempmailbox.org/fullchain.pem
+    Private Key Path: /etc/letsencrypt/live/tempmailbox.org/privkey.pem
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+root@srv949994:~/TempEmailApp# 

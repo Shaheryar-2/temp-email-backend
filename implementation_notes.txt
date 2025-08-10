@@ -22,3 +22,8 @@ Submit to search console
 Add meta descriptions
 
 server deployment
+
+
+
+Where SSL will go if i have to migrate to vps is reset?
+what should i do and alll stuff
