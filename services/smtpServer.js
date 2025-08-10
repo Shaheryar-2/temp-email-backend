@@ -9,8 +9,8 @@ const path = require('path');
 let smtpServer;
 
 const startSMTPServer = (wss) => {
-  const keyPath = path.join(__dirname, '../certs/private.key');
-  const certPath = path.join(__dirname, '../certs/certificate.crt');
+  const keyPath = '/etc/letsencrypt/live/mail.tempmailbox.org/privkey.pem';
+  const certPath = '/etc/letsencrypt/live/mail.tempmailbox.org/fullchain.pem';
 
   // Verify certificates exist
   if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {

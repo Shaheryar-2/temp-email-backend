@@ -14,4 +14,11 @@ add searach bar icon for website also
 2. domains buy for website and emails (tempemailbox.org from spaceship, ) [karad.life from hostinger RS600/year, ioasd.xyz from namecheap ] // all are on spaceship (done)
 3. deployment lgani ha 
 
+
+Google search console p wesbite live krni prti
+-> Google Indexing (long-term):
+Add sitemap.xml
+Submit to search console
+Add meta descriptions
+
 server deployment
