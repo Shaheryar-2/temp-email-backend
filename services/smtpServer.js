@@ -29,56 +29,58 @@ const startSMTPServer = (wss) => {
     authOptional: true,
     disabledCommands: ['AUTH'],
     onData(stream, session, callback) {
-      simpleParser(stream, async (err, parsed) => {
-        if (err) return callback(err);
+      console.log("📡 SMTP connection received");
+      console.log("📧 RCPT TO:", session.envelope?.rcptTo);
+      console.log("✉️ MAIL FROM:", session.envelope?.mailFrom);
 
+      simpleParser(stream, async (err, parsed) => {
+        if (err) {
+          console.error("❌ simpleParser error:", err);
+          return callback(err);
+        }
+        
+        console.log("📜 Parsed email subject:", parsed.subject);
+        console.log("📜 Parsed email from:", parsed.from?.text);
+        console.log("📜 Parsed email to:", parsed.to?.text);
+        
         try {
           const emailAddress = session.envelope.rcptTo[0].address.toLowerCase();
+          console.log("🔍 Final recipient email address:", emailAddress);
+          
           const domainParts = emailAddress.split('@');
-          
-          if (domainParts.length !== 2) {
-            console.log(`⚠️ Invalid email: ${emailAddress}`);
-            return callback();
-          }
-          
-          const domain = domainParts[1];
-          const rootDomain = domain.split('.').slice(-2).join('.');
+          console.log("🌐 Domain parts:", domainParts);
+
+          const rootDomain = domainParts[1].split('.').slice(-2).join('.');
+          console.log("🌐 Root domain:", rootDomain);
           
           if (!DOMAINS.includes(rootDomain)) {
             console.log(`🚫 Rejected email for domain: ${domain} (root: ${rootDomain})`);
             return callback();
           }
-          
-          const sender = parsed.from?.value?.[0]?.address || 
-                         session.envelope.mailFrom?.address || 
-                         'unknown@example.com';
-          const senderName = parsed.from?.value?.[0]?.name || 
-                             parsed.from?.text || 
-                             'Unknown Sender';
 
-          const message = await saveIncomingMessage(emailAddress, parsed, sender, senderName);
+          console.log("💾 Saving incoming message...");
+          const message = await saveIncomingMessage(emailAddress, parsed, parsed.from?.text, parsed.from?.text);
 
           if (message) {
-            console.log(`📩 New message for ${emailAddress}`);
-            
-            // Broadcast to clients
+            console.log(`📩 Message saved for ${emailAddress}`);
             wss.clients.forEach(client => {
               if (client.readyState === WebSocket.OPEN && client.email === emailAddress) {
+                console.log(`📤 Broadcasting to ${emailAddress}`);
                 client.send(JSON.stringify({
                   type: 'new-message',
                   data: message
                 }));
-                console.log(`📤 Broadcasted to ${emailAddress}`);
               }
             });
           }
-          
+
           callback();
         } catch (error) {
-          console.error('💥 Processing error:', error);
+          console.error("💥 Error processing email:", error);
           callback(error);
         }
       });
+
     }
   });
 
