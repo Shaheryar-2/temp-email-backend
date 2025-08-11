@@ -70,9 +70,7 @@ const startSMTPServer = (wss) => {
     try {
       const rcpt = (address.address || '').toLowerCase();
       const clientIp = (session.remoteAddress || (session.connection && session.connection.remoteAddress) || '').toString();
-      console.log(`RCPT TO: ${rcpt} from IP: ${clientIp}`);
 
-      // domain check
       const root = rootDomainFrom(rcpt);
       if (!root || !DOMAINS.includes(root)) {
         console.warn(`Rejected RCPT: domain not served (${root}) for ${rcpt}`);
@@ -100,11 +98,8 @@ const startSMTPServer = (wss) => {
     const rcpts = session.envelope && session.envelope.rcptTo ? session.envelope.rcptTo.map(r => r.address) : [];
     const clientIp = (session.remoteAddress || (session.connection && session.connection.remoteAddress) || '').toString();
 
-    console.log(`📡 [DATA] incoming message from ${session.envelope && session.envelope.mailFrom ? session.envelope.mailFrom.address : 'unknown'} ip=${clientIp} rcpts=${JSON.stringify(rcpts)}`);
-
     simpleParser(stream, async (err, parsed) => {
       if (err) {
-        console.error('❌ simpleParser error:', err);
         return callback(err);
       }
 
@@ -114,28 +109,22 @@ const startSMTPServer = (wss) => {
           const rcptLower = (r || '').toLowerCase();
           const root = rootDomainFrom(rcptLower);
           if (!root || !DOMAINS.includes(root)) {
-            console.log(`Skipping save: ${rcptLower} not a supported domain (${root})`);
             continue; // don't save or broadcast
           }
 
-          console.log('Parsed subject:', parsed.subject);
           // call your controller to save into DB
           const message = await saveIncomingMessage(rcptLower, parsed, parsed.from?.text || session.envelope.mailFrom?.address, parsed.from?.text);
           if (message) {
-            console.log(`📩 Saved message for ${rcptLower} (id: ${message._id || '(no id)'}). Broadcasting to WS clients...`);
             wss.clients.forEach(client => {
               if (client.readyState === WebSocket.OPEN && client.email === rcptLower) {
                 client.send(JSON.stringify({ type: 'new-message', data: message }));
               }
             });
-          } else {
-            console.log(`No mailbox found for ${rcptLower}; message not saved.`);
-          }
+          } 
         }
 
         return callback();
       } catch (e) {
-        console.error('💥 Error processing message in onData:', e);
         return callback(new Error('451 4.3.0 Internal error saving message'));
       }
     });

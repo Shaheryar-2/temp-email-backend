@@ -10,7 +10,6 @@ module.exports = {
       const email = url.searchParams.get('email');
 
       ws.email = email;
-      console.log(`New WebSocket connection for: ${email}`);
 
       ws.on('message', (message) => {
         console.log(`Received message from ${email}: ${message}`);
@@ -21,7 +20,6 @@ module.exports = {
       });
     });
 
-    console.log('WebSocket server started');
     return wss;
   }
 };

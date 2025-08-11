@@ -58,11 +58,9 @@ exports.getEmailMessages = async (req, res) => {
  * Save an incoming SMTP message (called from SMTP server)
  */
 exports.saveIncomingMessage = async (recipientEmail, parsed, senderAddress, senderName) => {
-  console.log('coming', recipientEmail, parsed)
   const email = await Email.findOne({ address: recipientEmail });
 
   if (!email) {
-    console.log(`No temp email found for: ${recipientEmail}`);
     return null;
   }
 
