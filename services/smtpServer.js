@@ -4,93 +4,75 @@ const { saveIncomingMessage } = require('../controllers/emailController');
 const DOMAINS = require('../config/domains');
 const WebSocket = require('ws');
 const fs = require('fs');
-const path = require('path');
 
-let smtpServer;
+let smtpServerTls;
+let smtpServerPlain;
+
+function safeExists(p){ try { return fs.existsSync(p); } catch(e){ return false;} }
 
 const startSMTPServer = (wss) => {
   const keyPath = '/etc/letsencrypt/live/mail.tempmailbox.org/privkey.pem';
   const certPath = '/etc/letsencrypt/live/mail.tempmailbox.org/fullchain.pem';
 
-  // Verify certificates exist
-  if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
-    console.error('❌ SSL certificates missing in backend/certs directory');
-    console.error('Generate them using:');
-    console.error('openssl genrsa -out private.key 4096');
-    console.error('openssl req -new -key private.key -out csr.pem -subj "/CN=mail.tempmailbox.org"');
-    console.error('openssl x509 -req -days 365 -in csr.pem -signkey private.key -out certificate.crt');
-    process.exit(1);
+  const tlsAvailable = safeExists(keyPath) && safeExists(certPath);
+
+  if (!tlsAvailable) {
+    console.warn('⚠️ TLS certs not found at /etc/letsencrypt/live/mail.tempmailbox.org/. Will still start plain SMTP on port 25 for inbound delivery.');
+    console.warn('If you want SMTPS (465), ensure certs are mounted into the container at /etc/letsencrypt/live/mail.tempmailbox.org/*');
   }
 
-  smtpServer = new SMTPServer({
-    secure: true,
-    key: fs.readFileSync(keyPath),
-    cert: fs.readFileSync(certPath),
+  // Plain SMTP on port 25 (accepts incoming SMTP from other MTAs)
+  smtpServerPlain = new SMTPServer({
+    secure: false,
     authOptional: true,
     disabledCommands: ['AUTH'],
     onData(stream, session, callback) {
-      console.log("📡 SMTP connection received");
-      console.log("📧 RCPT TO:", session.envelope?.rcptTo);
-      console.log("✉️ MAIL FROM:", session.envelope?.mailFrom);
-
+      console.log('📡 [25] SMTP connection received:', session.envelope && session.envelope.rcptTo ? session.envelope.rcptTo.map(r=>r.address) : session.envelope);
       simpleParser(stream, async (err, parsed) => {
-        if (err) {
-          console.error("❌ simpleParser error:", err);
-          return callback(err);
-        }
-        
-        console.log("📜 Parsed email subject:", parsed.subject);
-        console.log("📜 Parsed email from:", parsed.from?.text);
-        console.log("📜 Parsed email to:", parsed.to?.text);
-        
+        if (err) { console.error('simpleParser error', err); return callback(err); }
         try {
-          const emailAddress = session.envelope.rcptTo[0].address.toLowerCase();
-          console.log("🔍 Final recipient email address:", emailAddress);
-          
-          const domainParts = emailAddress.split('@');
-          console.log("🌐 Domain parts:", domainParts);
-
-          const rootDomain = domainParts[1].split('.').slice(-2).join('.');
-          console.log("🌐 Root domain:", rootDomain);
-          
-          if (!DOMAINS.includes(rootDomain)) {
-            console.log(`🚫 Rejected email for domain: ${domain} (root: ${rootDomain})`);
+          const rcpt = session.envelope && session.envelope.rcptTo && session.envelope.rcptTo[0] && session.envelope.rcptTo[0].address;
+          if(!rcpt){
+            console.warn('No rcpt found in session.envelope', session.envelope);
             return callback();
           }
-
-          console.log("💾 Saving incoming message...");
-          const message = await saveIncomingMessage(emailAddress, parsed, parsed.from?.text, parsed.from?.text);
-
+          console.log('Parsed subject:', parsed.subject);
+          const message = await saveIncomingMessage(rcpt.toLowerCase(), parsed, parsed.from?.text || session.envelope.mailFrom?.address, parsed.from?.text);
           if (message) {
-            console.log(`📩 Message saved for ${emailAddress}`);
+            console.log(`📩 Saved message for ${rcpt}`);
             wss.clients.forEach(client => {
-              if (client.readyState === WebSocket.OPEN && client.email === emailAddress) {
-                console.log(`📤 Broadcasting to ${emailAddress}`);
-                client.send(JSON.stringify({
-                  type: 'new-message',
-                  data: message
-                }));
+              if (client.readyState === WebSocket.OPEN && client.email === rcpt.toLowerCase()) {
+                client.send(JSON.stringify({ type: 'new-message', data: message }));
               }
             });
           }
-
           callback();
-        } catch (error) {
-          console.error("💥 Error processing email:", error);
-          callback(error);
+        } catch (e) {
+          console.error('Error processing email [25]:', e);
+          callback(e);
         }
       });
-
     }
   });
 
-  smtpServer.on('error', err => {
-    console.error('🔥 SMTP Server Error:', err);
-  });
+  smtpServerPlain.on('error', err => console.error('SMTP plain error', err));
+  smtpServerPlain.listen(25, () => console.log('✅ SMTP (plain) listening on port 25'));
 
-  smtpServer.listen(465, () => {
-    console.log('✅ Secure SMTP server running on port 465');
-  });
+  // SMTPS (implicit TLS) on 465 if certs present
+  if (tlsAvailable) {
+    smtpServerTls = new SMTPServer({
+      secure: true,
+      key: fs.readFileSync(keyPath),
+      cert: fs.readFileSync(certPath),
+      authOptional: true,
+      disabledCommands: ['AUTH'],
+      onData: smtpServerPlain.options.onData // reuse same handler
+    });
+    smtpServerTls.on('error', err => console.error('SMTP TLS error', err));
+    smtpServerTls.listen(465, () => console.log('✅ SMTPS (implicit TLS) listening on port 465'));
+  } else {
+    console.log('ℹ️ SMTPS (465) not started because certs not available.');
+  }
 };
 
 module.exports = { startSMTPServer };
