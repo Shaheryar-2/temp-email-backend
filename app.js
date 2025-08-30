@@ -19,24 +19,24 @@ const PORT = process.env.PORT || 5000;
 // }));
 app.use(cors())
 app.use(bodyParser.json());
-app.use(
-  helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: [
-        "'self'",
-        "'unsafe-inline'",
-        "https://www.googletagmanager.com", // also whitelist third party for analystics etc here
-        "https://www.google-analytics.com",
-      ],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://www.google-analytics.com", "wss://www.tempmailbox.org"],
-      frameAncestors: ["'none'"],
-    },
-  })
-);
+// app.use(
+//   helmet.contentSecurityPolicy({
+//     directives: {
+//       defaultSrc: ["'self'"],
+//       scriptSrc: [
+//         "'self'",
+//         "'unsafe-inline'",
+//         "https://www.googletagmanager.com", // also whitelist third party for analystics etc here
+//         "https://www.google-analytics.com",
+//       ],
+//       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+//       fontSrc: ["'self'", "https://fonts.gstatic.com"],
+//       imgSrc: ["'self'", "data:", "https:"],
+//       connectSrc: ["'self'", "https://www.google-analytics.com", "wss://www.tempmailbox.org"],
+//       frameAncestors: ["'none'"],
+//     },
+//   })
+// );
 
 // Database connection
 connectDB();
